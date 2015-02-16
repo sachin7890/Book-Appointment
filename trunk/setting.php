@@ -36,7 +36,7 @@ $( "#new_date" ).datepicker({
         <tr valign="top">
         <th scope="row">Upload Image</th>
 		<td><label for="upload_image">
-		<input id="upload_image" type="text" size="36" name="upload_image" value="<?php echo $gearimage; ?>" />
+		<input id="upload_image" type="text" size="36" name="upload_image" value="<?php echo esc_attr( get_option('upload_image') ); ?>" />
 		<input id="upload_image_button" type="button" value="Upload Image" />
 		<br />Enter an URL or upload an image for the logo.
 		</label>
