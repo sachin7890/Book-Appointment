@@ -21,7 +21,7 @@ $username = $wpdb->get_var("SELECT user_login FROM {$wpdb->users} WHERE ID = '{$
 get_currentuserinfo();
 $user=$current_user->user_login;
 
-$admin_email = get_option('admin_email');
+$admin_email = get_option('email_address');
 
 $res=$wpdb->get_results("SELECT * from $table WHERE appointment_id='".$id."'");
 
@@ -38,7 +38,7 @@ if you don't want more than 1 para, just put NULL in unused $subjectPara variabl
 */ 
 
 $subtitle="Hi Admin,";
-$subjectPara1 = 'Appointment successfully updated by <strong>'.$username.'</strong> User.'; 
+$subjectPara1 = 'Appointment successfully updated by <strong>'.$username.'</strong>.'; 
 //$subjectPara2 = 'Please click here to show updated <a href='.$url.'>Appointment</a>!'; 
 
 $message = '<!DOCTYPE HTML>'. 

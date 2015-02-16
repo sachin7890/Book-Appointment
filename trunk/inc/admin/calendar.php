@@ -1,4 +1,3 @@
-<?php $test=new WPUF_Main();?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +20,7 @@
         'agenda': 3, // adjust to 6 only for agendaWeek/agendaDay
         'default': true // give the default value to other views
     },
-   events: <?php echo $test->calendar_events()?>,
+   events: <?php echo $this->calendar_events()?>,
    // Convert the allDay from string to boolean
    eventRender: function(event, element, view) {
     if (event.allDay === 'true') {
@@ -33,7 +32,7 @@
    selectable: true,
    selectHelper: true,
    select: function(start, end, allDay) {
-   var title = prompt('Event Title:');
+   var title = prompt('Appointment Name:');
    var url = "<?php echo admin_url().'admin.php?page=Test-class';?>";
 
    if (title) {

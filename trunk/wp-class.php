@@ -26,14 +26,15 @@ class WPUF_Main extends Sub {
         add_action('admin_menu',array(&$this, 'test_class_menu'));
         
         $plugin = plugin_basename( __FILE__ );
-		    add_filter( "plugin_action_links_$plugin", array(&$this,'plugin_add_settings_link' ));
+        add_filter( "plugin_action_links_$plugin", array(&$this,'plugin_add_settings_link' ));
        // add_action( 'admin_enqueue_scripts',array($this,'my_action_javascript'));
   
-        add_action( 'wp_ajax_test_response', array(&$this,'my_action_callback' ));
-        add_action( 'admin_init', array(&$this,'register_mysettings' ));
+        add_action('wp_ajax_test_response', array(&$this,'my_action_callback' ));
+        add_action('admin_init', array(&$this,'register_mysettings' ));
         add_action('init', array(&$this,'wp_gear_manager_admin_scripts'));
         add_action('init', array(&$this,'wp_gear_manager_admin_styles'));
-        add_action( 'wp_ajax_front_response', array($this,'front_ajax' ));
+        add_action('wp_ajax_front_response', array($this,'front_ajax' ));
+        add_action('init',array(&$this,'manage_front_action'));
 
         add_shortcode('appointmentshow', array(&$this,'appointment'));
         add_shortcode('calendershow',array(&$this,'front_calendershow'));
@@ -66,46 +67,20 @@ class WPUF_Main extends Sub {
 
         $table_name = $wpdb->prefix . 'Appointments';
 
-        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        appointment_id int(11) NOT NULL AUTO_INCREMENT,
-        appointment_name varchar(50) NOT NULL,
-        date_of_apointment date DEFAULT '0000-00-00' NOT NULL,
-        email_id varchar(100) NOT NULL,
-        Phone varchar(12) NULL,
-        user_id bigint(20) NOT NULL,
-        status int(11) DEFAULT '0' NOT NULL,     /*0-pending,1-approval,2-reject*/ 
-        PRIMARY KEY (appointment_id)
+        $sql2 = "CREATE TABLE IF NOT EXISTS $table_name (
+        app_id int(11) NOT NULL AUTO_INCREMENT,
+        title varchar(200) NOT NULL,
+        start date NOT NULL,
+        url varchar(100) NOT NULL,
+        allDay varchar(10) DEFAULT 'false' NOT NULL, 
+        email varchar(200) NOT NULL,
+        phone varchar(20) NULL,
+        user_id bigint(20),
+        status varchar(15) DEFAULT 'Pending' NOT NULL,
+        PRIMARY KEY (app_id)
       )";
 
-        $table_name = $wpdb->prefix . 'events';
-
-        $sql1 = "CREATE TABLE IF NOT EXISTS $table_name (
-          id int(11) NOT NULL AUTO_INCREMENT,
-          title varchar(50) COLLATE utf8_bin NOT NULL,
-          start date DEFAULT '0000-00-00' NOT NULL,
-          url varchar(255) COLLATE utf8_bin NULL,
-          allDay varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'false', 
-          appointment_id int(11) NOT NULL,
-          status int(11) NOT NULL,
-          PRIMARY KEY (id)
-        )";
-
-       /*$table_name = $wpdb->prefix . 'email_templates';
-
-        $sql2 = "CREATE TABLE IF NOT EXISTS $table_name (
-          temp_id int(10) NOT NULL AUTO_INCREMENT,
-          temp_code varchar(150) COLLATE utf8_bin NOT NULL,
-          temp_content text NOT NULL,
-          temp_style text COLLATE utf8_bin NULL,
-          temp_subject varchar(200) COLLATE utf8_bin NOT NULL, 
-          added_at timestamp NULL,
-          modified_at timestamp NULL,
-          PRIMARY KEY (temp_id)
-        )";*/
-
-        $wpdb->query( $sql );
-       /* $wpdb->query( $sql1 );*/
-        $wpdb->query( $sql1 );
+        $wpdb->query( $sql2 );
     }
 
   public function get_jqueryui_ver() {
@@ -119,23 +94,26 @@ class WPUF_Main extends Sub {
     return '1.7.3';
   
   }
-	public function test_class_menu() {
+  public function test_class_menu() {
       global $setting;
-   		$setting=add_menu_page( 'Appointment page', 'Appointment Book', 'manage_options', 'Test-class', array( $this, 'appointment_plugin' ));
+      $setting=add_menu_page( 'Appointment page', 'Appointment Book', 'manage_options', 'Test-class', array( $this, 'appointment_plugin' ));
     }
 
- 	public function appointment_plugin(){
- 			require_once dirname(__FILE__).'/class-test.php'; 
+  public function appointment_plugin(){
+      require_once dirname(__FILE__).'/class-test.php'; 
     }
 
- 	public function plugin_add_settings_link( $links ) {
+  public function plugin_add_settings_link( $links ) {
     $settings_link = '<a href="admin.php?page=Test-class">Settings</a>';
-  	array_push($links, $settings_link );
-  	return $links;
-	}
+    array_push($links, $settings_link );
+    return $links;
+  }
 
   public function appointment(){
-    require_once dirname(__FILE__).'/shortcodes/new-appointment.php';
+    if(is_user_logged_in())
+    {
+     require_once dirname(__FILE__).'/shortcodes/new-appointment.php';
+    }
   }
 
   public function setting()
@@ -148,6 +126,7 @@ class WPUF_Main extends Sub {
     register_setting( 'baw-settings-group', 'email_address' );
     register_setting( 'baw-settings-group', 'new_date' );
     register_setting( 'baw-settings-group', 'booking_perday' );
+    register_setting( 'baw-settings-group', 'upload_image' );
   }
 
  public function wp_gear_manager_admin_scripts() {
@@ -170,24 +149,33 @@ class WPUF_Main extends Sub {
   }
   public function front_signup()
   {
-    require_once dirname(__FILE__).'/shortcodes/signup.php';
+    if(!is_user_logged_in())
+    {
+      require_once dirname(__FILE__).'/shortcodes/signup.php';
+    }
   }
 
   public function front_calendershow()
   {
-    require_once dirname(__FILE__).'/shortcodes/front_calender.php'; 
+    if(is_user_logged_in())
+    {
+      require_once dirname(__FILE__).'/shortcodes/front_calender.php'; 
+    }
   }
 
   public function front_appointmentslist()
   {
-    require_once dirname(__FILE__).'/shortcodes/front_appointmentlist.php';
+    if(is_user_logged_in())
+    {
+      require_once dirname(__FILE__).'/shortcodes/front_appointmentlist.php';
+    }
   }
 
   public function my_action_callback() {
     global $wpdb;
   
     $table_name = $wpdb->prefix . 'Appointments';
-    $tb= $wpdb->prefix.'events';
+   // $tb= $wpdb->prefix.'events';
     $total=get_option('booking_perday');
 
     if(current_user_can('administrator')){
@@ -200,7 +188,7 @@ class WPUF_Main extends Sub {
     $dat=date('Y-m-d',strtotime($date)); // convert in yyyy-mm-dd
 
     /* Check appointment more than 3 on particular date */
-    $abc=$wpdb->get_var("SELECT count(date_of_apointment) from $table_name WHERE date_of_apointment='".$dat."'");
+    $abc=$wpdb->get_var("SELECT count(start) from $table_name WHERE start='".$dat."'");
     
     if($abc>=$total){
       echo "* You can book only {$total} events on particular date!";
@@ -209,12 +197,11 @@ class WPUF_Main extends Sub {
    else{
 
     $url=admin_url().'admin.php?page=Test-class';
-
     $query=$wpdb->query($wpdb->prepare(
 
-      "INSERT into $table_name(appointment_name,date_of_apointment,email_id,Phone,user_id,status) 
-      VALUES (%s,%s,%s,%s,%s,%d)
-      " ,$app,$dat,sanitize_email($email),$phone,$id,1
+      "INSERT into $table_name(title,start,email,phone,user_id,status) 
+      VALUES (%s,%s,%s,%s,%s,%s)
+      " ,$app,$dat,sanitize_email($email),$phone,$id,'Approved'
   
     ));
       
@@ -222,12 +209,11 @@ class WPUF_Main extends Sub {
 
     $URL=$url."&new=list_appointments.php&apid=".$lastid;
 
-    $qr=$wpdb->query($wpdb->prepare(
-      "INSERT into $tb(title,start,url,appointment_id,status) 
-       VALUES (%s,%s,%s,%d,%d) 
-      ", $app,$dat,$URL,$lastid,1
-      
-    ));
+    $qr=$wpdb->update($table_name,array('url'=>$URL),
+                        array('app_id'=>$lastid),
+                        array('%s'),
+                        array('%d')
+                      );
 
     if($query==true && $qr==true){
           echo "* New appointment inserted!";
@@ -244,53 +230,54 @@ class WPUF_Main extends Sub {
     global $wpdb;
 
     $table_name = $wpdb->prefix . 'Appointments';
-    $tb= $wpdb->prefix.'events';
+  //  $tb= $wpdb->prefix.'events';
     $total=get_option('booking_perday');
    // $user=get_userdata(1); // Admin details  
  
-    if (!current_user_can( 'administrator' ) ){
-    $userid=get_current_user_id();  // User id details
+    if (is_user_logged_in())
+    {
+       $userid=get_current_user_id();  // User id details
 
-    //require_once dirname(__FILE__).'/inc/templates/appointment_add(client).php';
-    extract($_POST);  /* Data Get*/
-   
-    $dat=date('Y-m-d',strtotime($date)); // convert in yyyy-mm-dd
-    
-    $abc=$wpdb->get_var("SELECT count(date_of_apointment) from $table_name WHERE date_of_apointment='".$dat."' and user_id='$userid'");
-
-    if($abc>=$total){
-      echo "* You can book only {$total} events on particular date!";
-      exit();
-    } // End
-   else{
-    $url=admin_url().'admin.php?page=Test-class';
-
-    $query=$wpdb->query($wpdb->prepare(
-      "INSERT into $table_name(appointment_name,date_of_apointment,email_id,Phone,user_id,status)
-       VALUES (%s,%s,%s,%s,%d,%d)
-      ", $app,$dat,sanitize_email($email),$phone,$userid,0
-    ));
+      //require_once dirname(__FILE__).'/inc/templates/appointment_add(client).php';
+      extract($_POST);  /* Data Get*/
+     
+      $dat=date('Y-m-d',strtotime($date)); // convert in yyyy-mm-dd
       
-    $lastid=$wpdb->insert_id;
+      $abc=$wpdb->get_var("SELECT count(start) from $table_name WHERE start='".$dat."' and user_id='$userid'");
 
-    $URL=$url."&new=list_appointments.php&apid=".$lastid;
+      if($abc>=$total){
+        echo "* You can book only {$total} events on particular date!";
+        exit();
+      } // End
+     else{
+      $url=admin_url().'admin.php?page=Test-class';
 
-    $qr=$wpdb->query($wpdb->prepare(
-      "INSERT into $tb(`title`,`start`,`url`,`appointment_id`,`status`) 
-       VALUES (%s,%s,%s,%d,%d)
-      ", $app,$dat,$URL,$lastid,0 
-    ));
+      $query=$wpdb->query($wpdb->prepare(
+        "INSERT into $table_name(title,start,phone,user_id,status)
+         VALUES (%s,%s,%s,%s,%s)
+        ", $app,$dat,$phone,$userid,'Pending'
+      ));
+        
+      $lastid=$wpdb->insert_id;
 
-    if($query==true && $qr==true){
-          require_once dirname(__FILE__).'/inc/templates/appointment_add(client).php';
-          echo "* Appointment booked!";
-    }
-    else{
-          echo " Something going wrong with database query!";
+      $URL=$url."&new=list_appointments.php&apid=".$lastid;
+
+      $qr=$wpdb->update($table_name,array('url'=>$URL),
+                          array('app_id'=>$lastid),
+                          array('%s'),
+                          array('%d')
+                        );
+
+      if($query==true && $qr==true){
+          //  require_once dirname(__FILE__).'/inc/templates/appointment_add(client).php';
+            echo "* Appointment booked!";
+      }
+      else{
+            echo " Something going wrong with database query!";
+       }
+      die();
      }
-    die();
-   }
- }
+  }
 }
 
 }

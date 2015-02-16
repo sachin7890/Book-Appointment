@@ -22,12 +22,11 @@ display: inline-block;
 		<ul>
 		<li>
 			<?php 
-			$test=new Sub();
-			echo $test->menu();
+			echo $this->menu();
 			?>
 		</li>
 	</ul>
 	</nav>	
 </header>
-<div><?php $test->check_page();?></div>
+<div><?php $this->check_page();?></div>
 </body>

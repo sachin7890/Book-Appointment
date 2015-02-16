@@ -14,7 +14,7 @@ $table=$wpdb->prefix.'Appointments';
 //get_currentuserinfo();
 $user=$current_user->user_login;
 
-$admin_email = get_option('admin_email');
+$admin_email = get_option('email_address');
 
 $lastId = $wpdb->get_var("SELECT max(appointment_id) FROM $table"); // Get last inserted id
 

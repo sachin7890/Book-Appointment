@@ -1,5 +1,4 @@
 <?php
-        $test=new WPUF_Main();
         $old=get_option( 'new_date' );  // Get database date
         $newdate=date("d-m-Y", strtotime($old));
 ?>
@@ -30,8 +29,5 @@
 );
 </script>
 <?php
-			echo $test->frontappointments_list();
-?>
-<?php
-		   $test->manage_front_action();
+			echo $this->frontappointments_list();
 ?>

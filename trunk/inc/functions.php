@@ -10,11 +10,15 @@ class Sub //extends WPUF_Main
 	{
 		$menu.='<li><a href='.admin_url().'admin.php?page=Test-class&new=calendar.php>Calendar</a></li> | ';
 		$menu.='<li><a href='.admin_url().'admin.php?page=Test-class&new=list_appointments.php>List of Appoinments</a></li> | ';
-		$menu.='<li><a href='.admin_url().'admin.php?page=Test-class&new=manage_appointments.php>Manage Appointment</a></li> | ';	
+		//$menu.='<li><a href='.admin_url().'admin.php?page=Test-class&new=manage_appointments.php>Manage Appointment</a></li> | ';	
 		$menu.='<li><a href='.admin_url().'admin.php?page=Test-class&new=appointment.php>Add Appointment</a></li> | ';
 		$menu.='<li><a href='.admin_url().'admin.php?page=Test-class&new=setting.php>Setting</a></li>';
 	 	//$menu.='<li><a href='.admin_url().'admin.php?page=Test-class&new=email-template.php>Templates</a></li>';
 	 	return $menu;
+	}
+	public function status()
+	{
+		return array('Pending','Approved','Rejected','Completed');
 	}
 	public function check_page()
 	{	
@@ -26,11 +30,11 @@ class Sub //extends WPUF_Main
 		{
 			require_once dirname(__FILE__).'/admin/calendar.php';
 		}
-		if(isset($_REQUEST['page']) && $_REQUEST['page'] == "Test-class" && $_REQUEST['new']=="manage_appointments.php")
+		/*if(isset($_REQUEST['page']) && $_REQUEST['page'] == "Test-class" && $_REQUEST['new']=="manage_appointments.php")
 		{
 			require_once dirname(__FILE__).'/admin/manage_appointments.php';
 			//unset($_REQUEST['google']);
-		}
+		}*/
 		if(isset($_REQUEST['page']) && $_REQUEST['page'] == "Test-class" && $_REQUEST['new']=="list_appointments.php")
 		{
 			require_once dirname(__FILE__).'/admin/list_appointments.php';
@@ -40,14 +44,14 @@ class Sub //extends WPUF_Main
 		{
 			require_once dirname(__FILE__).'/admin/appointment.php';
 		}
-		if(isset($_REQUEST['page']) && $_REQUEST['page'] == "Test-class" && $_REQUEST['new']=="approval.php")
+		/*if(isset($_REQUEST['page']) && $_REQUEST['page'] == "Test-class" && $_REQUEST['new']=="approval.php")
 		{
 			require_once dirname(__FILE__).'/admin/approval.php';
 		}
 		if(isset($_REQUEST['page']) && $_REQUEST['page'] == "Test-class" && $_REQUEST['new']=="rejection.php")
 		{
 			require_once dirname(__FILE__).'/admin/rejection.php';
-		}
+		}*/
 		if(isset($_REQUEST['page']) && $_REQUEST['page'] == "Test-class" && $_REQUEST['new']=="setting.php")
 		{
 			require_once dirname(dirname(__FILE__)).'/setting.php';
@@ -58,7 +62,7 @@ class Sub //extends WPUF_Main
 		}*/
 	}
 
-	public function manage_appointments(){
+	/*public function manage_appointments(){
 		global $wpdb;
 		$html;
 
@@ -100,9 +104,9 @@ class Sub //extends WPUF_Main
 	}
 	$html.='</table>';
 	return $html;
-	}
+	}*/
 
-	public function approval_request()
+	/*public function approval_request()
 	{
 			extract($_REQUEST);
 
@@ -123,9 +127,9 @@ class Sub //extends WPUF_Main
 				echo "error";
 				exit();
 			}
-	}
+	}*/
 
-	public function rejection_request()
+	/*public function rejection_request()
 	{
 			extract($_REQUEST);
 
@@ -144,16 +148,16 @@ class Sub //extends WPUF_Main
 				echo "error";
 				exit();
 			}
-	}
+	}*/
 
 	public function calendar_events()
 	{
 		global $wpdb;
 		$userid=get_current_user_id(); // Current user id
-		$tb= $wpdb->prefix.'events';
-		//$table= $wpdb->prefix.'Appointments';
+		//$tb= $wpdb->prefix.'events';
+		$table= $wpdb->prefix.'Appointments';
 		 // Execute the query
-		$resultat = $wpdb->get_results($wpdb->prepare("SELECT * FROM $tb WHERE status!=%d",2));
+		$resultat = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table WHERE status not in('%s')",'Rejected'));
 		 // sending the encoded result to success page
 		$data=json_encode($resultat);
 	    return $data;
@@ -167,7 +171,7 @@ class Sub //extends WPUF_Main
 		$table= $wpdb->prefix.'Appointments';
 		$userid=get_current_user_id(); // Current user id
 	 	// Execute the query
-		$resultat = $wpdb->get_results($wpdb->prepare("SELECT start,title from $tb where status!=%d and appointment_id in(select appointment_id from $table where user_id=%d)",2,$userid));
+		$resultat = $wpdb->get_results($wpdb->prepare("SELECT start,title from $table where status not in('%s') and user_id ='%d'",'Rejected',$userid));
 		 // sending the encoded result to success page
 		$data=json_encode($resultat);
 		return $data;
@@ -177,10 +181,10 @@ class Sub //extends WPUF_Main
 	{
 	  global $wpdb;
 
- 	  $admin_email = get_option( 'admin_email' ); // Get admin email address
+ 	  $admin_email = get_option( 'email_address' ); // Get admin email address
 
 	  $table_name = $wpdb->prefix.'Appointments';
-	  $tb= $wpdb->prefix.'events';
+	//  $tb= $wpdb->prefix.'events';
 
 	  $total=get_option('booking_perday');
 
@@ -194,27 +198,27 @@ class Sub //extends WPUF_Main
 	 if ( current_user_can( 'administrator' ) ) {
 	  $id=get_current_user_id();  /* Get current user id*/
 
-	  $abc=$wpdb->get_var("SELECT count(date_of_apointment) from $table_name WHERE date_of_apointment='".$start."'");
+	  $abc=$wpdb->get_var("SELECT count(start) from $table_name WHERE start='".$start."'");
 	  if($abc>=$total){
 	        echo "* You can book only {$total} events on particular date!";
 	        exit();
 	    }
 	  else{
 	  $wpdb->query($wpdb->prepare(
-			 "INSERT INTO $table_name(appointment_name,date_of_apointment,email_id,Phone,user_id,status)
-			  VALUES (%s,%s,%s,NULl,%d,%d)
-			 ", $title,$start,$email,$id,1
+			 "INSERT INTO $table_name(title,start,email,phone,user_id,status)
+			  VALUES (%s,%s,%s,%s,%d,%s)
+			 ", $title,$start,$admin_email,NULL,$id,'Approved'
 	  	));
 
 	  $lastid=$wpdb->insert_id;   // Get last insert id
 
 	  $URL=$url."&new=list_appointments.php&apid=".$lastid;
 
-	  $status=$wpdb->query($wpdb->prepare(
-	  	"INSERT into $tb(title,start,url,appointment_id,status) 
-	  	 VALUES (%s,%s,%s,%d,%d) 
-	  	", $title,$start,$URL,$lastid,1
-	 	));
+	 $status=$wpdb->update($table_name,array('url'=>$URL),
+	  				array('app_id'=>$lastid),
+	  				array('%s'),
+	  				array('%d') 
+	  				);
 
 	  if($status)
 	  	{
@@ -236,7 +240,7 @@ class Sub //extends WPUF_Main
 	global $wpdb,$html;
 
 	$table_name = $wpdb->prefix . 'Appointments';
-	$tb=$wpdb->prefix.'events';
+	//$tb=$wpdb->prefix.'events';
 
 	if(current_user_can('administrator')){
 
@@ -254,52 +258,64 @@ class Sub //extends WPUF_Main
 			<th>Date of Appointments</th>
 			<th>Email</th>
 			<th>Userid</th>
+			<th>Phone</th>
 			<th>Status</th>
 			<th>Options</th>
 	</tr>';
 		
 	foreach($data as $key => $val){
 		$st=$val->status;
-        if(isset($_REQUEST['apid']) && $_REQUEST['apid']==$val->appointment_id)
+        if(isset($_REQUEST['apid']) && $_REQUEST['apid']==$val->app_id)
         {
           $id=$_REQUEST['apid'];
        
           $html.='<tr>
-            <td>'.$val->appointment_id.'</td>
+            <td>'.$val->app_id.'</td>
             <input type="hidden" name="txtuid" value='.$val->user_id.'>
-            <td><input type="text" name="txteappname" value="'.$val->appointment_name.'" required/></td>
-            <td><input type="text" name="txtedate" value="'.$val->date_of_apointment.'" id="txtedate" required/></td>
-            <td>'.$val->email_id.'</td>
-            <td>'.$val->user_id.'</td>';
-            $html.='<td>';
-            if($st==0){$html.="<span style='color:#FFAD21;font-weight:bold;'>Pending";}
-            elseif($st==1 && $userid==1){$html.="<span style='color:green;font-weight:bold;'>Approved</span>";}
-            elseif($st==1){$html.="<span style='color:green;font-weight:bold;'>Approved</span>";}
-            elseif($st==2){$html.="<span style='color:red;font-weight:bold;'>Rejected</span>";}
-        	$html.='</td>
-            <td><input type="submit" value="Update" name="ebtnup" class="button-primary"/></td>
+            <td><input type="text" name="txteappname" value="'.$val->title.'"/></td>
+            <td><input type="text" name="txtedate" value="'.$val->start.'" id="txtedate"/></td>
+            <td><input type="text" name="txteemail" value="'.$val->email.'"></td>
+            <td>'.$val->user_id.'</td>
+            <td>'.$val->phone.'</td>';
+            $html.='<td><select name="estatus">';
+            foreach($this->status() as $val)
+            {
+            	if($val == $st)
+            	{
+            		$s='selected="selected"';
+            	}
+            	else
+            	{
+            		$s='';
+            	}
+            	$html .= "<option {$s} value='{$val}'>";
+				$html .= $val;
+				$html .= '</option>';
+            }
+        	$html.='</select></td>
+            <td>
+            <input type="submit" value="Update" name="ebtnup" class="button-primary"/>
+            <input type="submit" value="Cancel" name="ebtncan" class="button-primary"/>
+            </td>
           </tr>';
-        
         }
         else{
 	
 		$html.='<tr>
-		<td>'.$val->appointment_id.'</td>
-		<td>'.$val->appointment_name.'</td>
-		<td>'.$val->date_of_apointment.'</td>
-		<td>'.$val->email_id.'</td>
-		<td>'.$val->user_id.'</td>';
+		<td>'.$val->app_id.'</td>
+		<td>'.$val->title.'</td>
+		<td>'.$val->start.'</td>
+		<td>'.$val->email.'</td>
+		<td>'.$val->user_id.'</td>
+		<td>'.$val->phone.'</td>';
 		$html.='<td>';
-		if($st==0){$html.="<span style='color:#FFAD21;font-weight:bold;'>Pending</span>";}
-		elseif($st==1 && $userid==1){$html.="<span style='color:green;font-weight:bold;'>Approved</span>";}
-		elseif($st==1){$html.="<span style='color:#green;font-weight:bold;'>Approved</span>";}
-		if($st==2){$html.="<span style='color:red;font-weight:bold;'>Rejected</span>";}
-		$html.='</td>';
+		if($val->status == "Pending"){$html.='<label style="color:orange;font-weight:bold;">'.$val->status.'</label>';}
+		if($val->status == "Approved"){$html.='<label style="color:blue;font-weight:bold;">'.$val->status.'</label>';}
+		if($val->status == "Rejected"){$html.='<label style="color:red;font-weight:bold;">'.$val->status.'</label>';}
+		if($val->status == "Completed"){$html.='<label style="color:green;font-weight:bold;">'.$val->status.'</label>';}
 		$html.='<td>';
-		if($st!=2){$html.="<a href=admin.php?page=Test-class&new=list_appointments.php&apid=".$val->appointment_id."&userid=".$val->user_id.">Edit</a>";}
-		$html.='</td>';
+		$html.="<a href=admin.php?page=Test-class&new=list_appointments.php&apid=".$val->app_id."&userid=".$val->user_id." class='button-primary'>Edit</a>";
 		'</tr>';	
-		
 		}
 	  }
 	}
@@ -316,22 +332,20 @@ $html.='</form>';
 
   public function action()
   {
-
   	global $wpdb;
   	$table_name = $wpdb->prefix . 'Appointments';
-	$tb=$wpdb->prefix.'events';
+	//$tb=$wpdb->prefix.'events';
+  	$a=$_SERVER['REQUEST_URI'];
+  	$sb= explode("&", $a);
 
   	if(is_admin())
 	{
+		
 		extract($_REQUEST);
 		$total=get_option('booking_perday'); // Total no of events perday booked
 		if(isset($ebtnup))
 		{
-
-		$ct=array();
-  		$a=$_SERVER['REQUEST_URI'];
-  		$sb= explode("&", $a);
-
+  
 	    $e_id=$_REQUEST['apid'];
 	    $name=trim($_REQUEST['txteappname']);
 	    $dt=date('Y-m-d',strtotime(trim($_REQUEST['txtedate'])));
@@ -339,10 +353,8 @@ $html.='</form>';
 	   // die($dt);
 	    $ph=trim($_REQUEST['txtephone']);
 	    $uid=trim($_REQUEST['txtuid']);
-   // die($e_id);
-
-	    //require_once dirname(__FILE__).'/templates/appointment_update(admin).php';
-
+	    $status = $_REQUEST['estatus'];
+  
 	    if($dt<date('Y-m-d')){           /* Date must not less than today date */
 	      echo "<p>* Date must be today or grater than today date!</p>";
 	      exit();
@@ -352,28 +364,47 @@ $html.='</form>';
 	        exit();
 	    }
 
-	    $abc=$wpdb->get_var("SELECT count(date_of_apointment) from $table_name WHERE date_of_apointment='".$dt."'");
+	    $abc=$wpdb->get_var("SELECT count(start) from $table_name WHERE start='".$dt."'");
   		
      	 if($abc>=$total){
             echo "<p>* You can book only {$total} events on particular date!</p>";
             exit();
         }
-        else{
-        //echo "Update $table_name SET appointment_name='$name',date_of_apointment='$dt' WHERE appointment_id='$e_id'";	
-	    //die();
-	    $query=$wpdb->query("Update $table_name SET appointment_name='$name',date_of_apointment='$dt' WHERE appointment_id='$e_id' and user_id='$uid' ");
-	    $qr=$wpdb->query("Update $tb SET title='$name',start='$dt' WHERE appointment_id='$e_id'");
-	    if($query==true && $qr==true){
-	       require_once dirname(__FILE__).'/templates/appointment_update(admin).php';
-	       print "<script>alert('* Appointment is updated!')</script>";
-	       print '<META HTTP-EQUIV="Refresh" Content="0; URL='.$sb[0].'&'.$sb[1].'">';
-	    }
-	    else{
-	          print '<META HTTP-EQUIV="Refresh" Content="0; URL='.$sb[0].'">';
-	    }
+        else
+        {
+	    	$query=$wpdb->update($table_name,array('title'=>trim($name),'start'=>$dt,'email'=>$em,'status'=>$status),
+	    				array('app_id'=>$e_id,'user_id'=>$uid),
+	    				array('%s','%s','%s','%s'),
+	    				array('%d','%d')
+	    			);
+		    if($query==true)
+		    {
+		       if($status=='Approved')
+	    		{
+	    			require_once dirname(__FILE__).'/templates/appointment_approval(user).php';
+	   
+	    		}
+	    		if($status == "Rejected")
+	    		{
+	    			require_once dirname(__FILE__).'/templates/appointment_delete(admin).php';
+	    		}
 
-	    //$result=$wpdb->query("Select * from $table_name ");
+		       require_once dirname(__FILE__).'/templates/appointment_update(admin).php';
+		       print "<script>alert('* Appointment is updated!')</script>";
+		       print '<META HTTP-EQUIV="Refresh" Content="0; URL='.$sb[0].'&'.$sb[1].'">';
+		    }
+
+		    else{
+		          print '<META HTTP-EQUIV="Refresh" Content="0; URL='.$sb[0].'">';
+		    }
+
 		}
+	}
+
+	if(isset($ebtncan))
+	{
+		print '<META HTTP-EQUIV="Refresh" Content="0; URL='.$sb[0].'&'.$sb[1].'">';
+		exit();
 	}
   }
 }
@@ -382,216 +413,137 @@ public function frontappointments_list()
 {
 	global $wpdb,$html;
     $table_name = $wpdb->prefix . 'Appointments';
-    $tb=$wpdb->prefix.'events';
+   // $tb=$wpdb->prefix.'events';
    // $userid=get_current_user_id();
 
     $url=$_SERVER['REDIRECT_URL'];
     $a=explode("/", $url);
-   // print_r($a);
-    $t=array_pop($a);
-    $page=array_pop($a);
-    if($page<1)
-    {
-       $page=1;
-    }
-    // page is the current page, if there's nothing set, default is page 1
-    //$page = isset($_GET['page']) ? $_GET['page'] : 1;
 
-    // set records or rows of data per page
-    $recordsPerPage = 4;
-     
-    // calculate for the query LIMIT clause
-    $fromRecordNum = ($recordsPerPage * $page) - $recordsPerPage;
-
-   
-   // echo "Select * from $table_name where user_id='".$userid."' and status!='2' LIMIT $fromRecordNum,$recordsPerPage";
-   
-    //echo "<pre>";
    // print_r($_SERVER);
-  if ( !current_user_can( 'administrator' ) ){
-  $userid=get_current_user_id();
-  $data=$wpdb->get_results($wpdb->prepare("SELECT * from $table_name where user_id=%d and status!=%d ",$userid,2));
-  $rows=count($data);
-  if($rows>0)
-  { //echo "<pre>";
-      //print_r($_SERVER);
-  $html.='<form action='.$_SERVER['REQUEST_URI'].' name="e_frm" method="post">';
-  $html.='<table border="1" style="width:900px;">
-  <tr>
-      <th>ID</th>
-      <th>Name of Appointments</th>
-      <th>Date of Appointments</th>
-      <th>Email</th>
-      <th>Phone</th>
-      <th>Status</th>
-      <th colspan="2">Options</th>
-  </tr>';
+  if(is_user_logged_in())
+  {
+	  $userid=get_current_user_id();
+	  $userdata = get_userdata($userid);
+	  $email = $userdata->user_email;
+
+	  $data=$wpdb->get_results($wpdb->prepare("SELECT * from $table_name where user_id=%d",$userid));
+	  $rows=count($data);
+	  if($rows>0)
+	  { //echo "<pre>";
+	      //print_r($_SERVER);
+	  $html.='<form action='.$_SERVER['REQUEST_URI'].' name="e_frm" method="post">';
+	  $html.='<table border="1" style="width:900px;">
+	  <tr>
+	      <th>ID</th>
+	      <th>Name of Appointments</th>
+	      <th>Date of Appointments</th>
+	      <th>Email</th>
+	      <th>Phone</th>
+	      <th>Status</th>
+	      <th colspan="2">Options</th>
+	  </tr>';
    
-  foreach($data as $key => $val){
-        $st=$val->status;
-        if(isset($_REQUEST['appid']) && $_REQUEST['appid']==$val->appointment_id)
-        {
-          $id=$_REQUEST['appid'];
+	  foreach($data as $key => $val){
+	        $st=$val->status;
+	        if(isset($_REQUEST['appid']) && $_REQUEST['appid']==$val->app_id)
+	        {
+	          $id=$_REQUEST['appid'];
 
-          $html.='<tr>
-            <td>'.$val->appointment_id.'</td>
-            <input type="hidden" name="txtid" value="'.$id.'" readonly/>
-            <td><input type="text" name="txteappname" value="'.$val->appointment_name.'" required/></td>
-            <td><input type="text" name="txtedate" value="'.$val->date_of_apointment.'" required id="txtedate"/></td>
-            <td><input type="email" name="txteemail" value="'.$val->email_id.'" required/></td>
-            <td><input type="text" name="txtephone" value="'.$val->Phone.'"></td>';
-            $html.='<td>';
-            if($st==0){$html.='<span style="color:#FFAD21;font-weight:bold;">Pending</span>';}
-            elseif($st==1 && $userid==1){$html.='<span style="color:green;font-weight:bold">Approved</span>';}
-            elseif($st==1){$html.='<span style="color:green;font-weight:bold;">Approved</span>';}
-            elseif($st==2){$html.='<span style="color:red;font-weight:bold;">Rejected</span>';}
-        	$html.='</td>
-            <td><input type="submit" value="Update" name="btnup"/></td>
-          </tr>';
+	          $html.='<tr>
+	            <td>'.$val->app_id.'</td>
+	            <input type="hidden" name="txtid" value="'.$id.'" readonly/>
+	            <td><input type="text" name="txteappname" value="'.$val->title.'" required/></td>
+	            <td><input type="text" name="txtedate" value="'.$val->start.'" required id="txtedate"/></td>
+	            <td><input type="text" name="txteemail" value="'.$email.'"></td>
+	            <td><input type="text" name="txtephone" value="'.$val->phone.'"></td>';
+	            $html.='<td>';
+	            if($st=='Pending'){$html.='<span style="color:orange;font-weight:bold;">Pending</span>';}
+	            if($st=='Approved'){$html.='<span style="color:blue;font-weight:bold;">Approved</span>';}
+	            if($st=='Rejected'){$html.='<span style="color:red;font-weight:bold;">Rejected</span>';}
+	            if($st=='Completed'){$html.='<span style="color:green;font-weight:bold;">Completed</span>';}
+	        	$html.='</td>
+	            <td>
+	            <input type="submit" value="Update" name="btnup"/>
+	            <input type="submit" value="Cancel" name="btncan"/>
+	            </td>
+	          </tr>';
 
-        }
-        else{
+	        }
+	        else{
 
-    $html.='<tr>
-    <td>'.$val->appointment_id.'</td>
-    <td>'.$val->appointment_name.'</td>
-    <td>'.$val->date_of_apointment.'</td>
-    <td>'.$val->email_id.'</td>
-    <td>'.$val->Phone.'</td>';
-    $html.='<td>';
-    if($st==0){$html.='<span style="color:#FFAD21;font-weight:bold;">Pending</span>';}
-    elseif($st==1 && $userid==1){$html.='<span style="color:green;font-weight:bold;">Approved</span>';}
-    elseif($st==1){$html.='<span style="color:green;font-weight:bold;">Approved</span>';}
-    elseif($st==2){$html.='<span style="color:red;font-weight:bold;">Rejected</span>';}
-	$html.='</td>
-    <td><a href='.$_SERVER['REDIRECT_URL'].'?appid='.$val->appointment_id.'&userid='.$val->user_id.'>Edit</a></td>
-    <td><a href='.$_SERVER['REDIRECT_URL'].'?apid='.$val->appointment_id.'&userid='.$val->user_id.' onclick="return confirm(\'Are you sure want to delete?\');">Delete</a></td>
-    </tr>';  
-  	}
-  }
-}
-else{
+	    $html.='<tr>
+	    <td>'.$val->app_id.'</td>
+	    <td>'.$val->title.'</td>
+	    <td>'.$val->start.'</td>
+	    <td>'.$email.'</td>
+	    <td>'.$val->phone.'</td>';
+	    $html.='<td>';
+	    if($st=='Pending'){$html.='<span style="color:#FFAD21;font-weight:bold;">Pending</span>';}
+	    elseif($st=='Approved'){$html.='<span style="color:blue;font-weight:bold;">Approved</span>';}
+	    elseif($st=='Rejected'){$html.='<span style="color:red;font-weight:bold;">Rejected</span>';}
+	    elseif($st=='Completed'){$html.='<span style="color:green;font-weight:bold;">Completed</span>';}
+		$html.='</td>';
+	    $html.='<td>';
+	    if($st!='Rejected')
+	    {
+		    $html.='<a href='.$_SERVER['REDIRECT_URL'].'?appid='.$val->app_id.'&userid='.$val->user_id.'>Edit</a> |';
+		    $html.='<a href='.$_SERVER['REDIRECT_URL'].'?apid='.$val->app_id.'&userid='.$val->user_id.' onclick="return confirm(\'Are you sure want to delete?\');">Delete</a>';
+		}
+		$html.='</td></tr>';  
+		}
+	  }
+    }
+ }
+else
+ {
       echo "* No records found!";
       exit();
  }
-$html.='</table>'; 
-$html.='</form>';
-
-/*$html.="<div id='paging'>";
- 
-        // ***** for 'first' and 'previous' pages
-        if($page>1){
-            // ********** show the first page
-            $html.="<a href='".$_SERVER['REQUEST_URI']."?page=1' title='Go to the first page.' class='customBtn'>";
-            $html.="<span style='margin:0 .5em;'> << </span>";
-            $html.="</a>";
-             
-            // ********** show the previous page
-            $prev_page = $page - 1;
-            $html.="<a href='".$_SERVER['REQUEST_URI']."?page={$prev_page}' title='Previous page is {$prev_page}.' class='customBtn'>";
-            $html.="<span style='margin:0 .5em;'> < </span>";
-            $html.="</a>";
-             
-        }
-         
-         
-        // ********** show the number paging
- 
-        // find out total pages
-        $query = "SELECT COUNT(*) as total_rows FROM $table_name";
-        $stmt = $wpdb->get_results( $query );
-        
-        foreach($stmt as $v){
-          $abc=$v->total_rows;
-        }
-        $total_rows = $abc;
- 
-        $total_pages = ceil($total_rows / $recordsPerPage);
- 
-        // range of num links to show
-        $range = 2;
- 
-        // display links to 'range of pages' around 'current page'
-        $initial_num = $page - $range;
-        $condition_limit_num = ($page + $range)  + 1;
- 
-        for ($x=$initial_num; $x<$condition_limit_num; $x++) {
-             
-            // be sure '$x is greater than 0' AND 'less than or equal to the $total_pages'
-            if (($x > 0) && ($x <= $total_pages)) {
-             //echo $_SERVER['REDIRECT_URL'];
-     
-                // current page
-                if ($x == $page) {
-                    $html.="<span class='customBtn'>$x</span>";
-                } 
-                 
-                // not current page
-                else {
-                    $html.="<a href='{$_SERVER['REDIRECT_URL']}?page=$x' class='customBtn'>$x</a> ";
-                }
-            }
-        }
-         
-         
-        // ***** for 'next' and 'last' pages
-        if($page<$total_pages){
-            // ********** show the next page
-            $next_page = $page + 1;
-            $html.="<a href='".$_SERVER['REQUEST_URI']."?page={$next_page}' title='Next page is {$next_page}.' class='customBtn'>";
-            $html.="<span style='margin:0 .5em;'> > </span>";
-            $html.="</a>";
-             
-            // ********** show the last page
-            $html.="<a href='".$_SERVER['REQUEST_URI']."?page={$total_pages}' title='Last page is {$total_pages}.' class='customBtn'>";
-            $html.="<span style='margin:0 .5em;'> >> </span>";
-           	$html.="</a>";
-        }
-         
-    $html.="</div>";*/
-
-	
-	}
-	return $html;
+	 $html.='</table>'; 
+	 $html.='</form>';
+	 return $html;	
 }
+	
 	public function manage_front_action()
 	{
 		global $wpdb;
     	$table_name = $wpdb->prefix . 'Appointments';
-    	$tb=$wpdb->prefix.'events';
+    	//$tb=$wpdb->prefix.'events';
+    	
+    	$a=$_SERVER['REQUEST_URI'];
+		 // die($a);
+		$sb= explode("?", $a);
 
-    	if(current_user_can('administrator')){
 
-		if(isset($_REQUEST['apid'])){
+    	if(is_user_logged_in()){
 
-			//require_once dirname(__FILE__).'/templates/appointment_delete(user).php';
-    		
-		    $id=$_REQUEST['apid'];
-		    $userid=get_current_user_id();
+			if(isset($_REQUEST['apid'])){
 
-		    $url=$_SERVER['REQUEST_URI'];
+				//require_once dirname(__FILE__).'/templates/appointment_delete(user).php';
+	    		
+			    $id=$_REQUEST['apid'];
+			    $userid=get_current_user_id();
 
-		    $arr=explode("&", $url);
+			    $url=$_SERVER['REQUEST_URI'];
 
-		    $res=$wpdb->query("Update $table_name SET status='2' where appointment_id='".$id."' and user_id='$userid'");
-		    $qr=$wpdb->query("Update $tb SET status='2' where appointment_id='".$id."'");
-		    if($res==true && $qr==true){
-		    	require_once dirname(__FILE__).'/templates/appointment_delete(user).php';
-		        echo '<META HTTP-EQUIV="Refresh" Content="0; URL='.$arr[0].'">';
-		    }
-		}
+			    $arr=explode("&", $url);
+
+			    $res=$wpdb->update($table_name,array('status'=>'Rejected'),
+		    			array('app_id'=>$id,'user_id'=>$userid),
+		    			array('%s'),
+		    			array('%d','%d')
+		    	 );
+
+			    if($res==true){
+			    	require_once dirname(__FILE__).'/templates/appointment_delete(user).php';
+			        echo '<META HTTP-EQUIV="Refresh" Content="0; URL='.$arr[0].'">';
+			    }
+			}
 
 		if(isset($_REQUEST['btnup'])){
-			//require_once dirname(__FILE__).'/templates/appointment_update(user).php';
-		  /*echo bloginfo('url');
-		  die();*/
-
-		  $userid=get_current_user_id();
-		  $total=get_option('booking_perday'); // Total no of events perday booked
-
-		  $a=$_SERVER['REQUEST_URI'];
-		 // die($a);
-		  $sb= explode("?", $a);
+			
+		    $userid=get_current_user_id();
+		    $total=get_option('booking_perday'); // Total no of events perday booked
 
 		    $e_id=$_REQUEST['txtid'];
 		    $name=trim($_REQUEST['txteappname']);
@@ -611,18 +563,23 @@ $html.='</form>';
 		        exit();
 		    }
 
-		    $abc=$wpdb->get_var("SELECT count(date_of_apointment) from $table_name WHERE date_of_apointment='".$dt."' and user_id='$userid'");
+		    $abc=$wpdb->get_var("SELECT count(start) from $table_name WHERE start='".$dt."' and user_id='$userid'");
 		  
 		    if($abc>=$total){
 		        echo "<p>* You can book only {$total} events on particular date!</p>";
 		        exit();
 		    }
-		    else{
-		  //  echo "Update $table_name SET appointment_name='$name',date_of_apointment='$dt',email_id='$em',Phone='$ph' WHERE appointment_id='$e_id'";
-		   // die();
-		    $query=$wpdb->query("Update $table_name SET appointment_name='$name',date_of_apointment='$dt',email_id='".sanitize_email($em)."',Phone='$ph' WHERE appointment_id='$e_id' and user_id='$userid'");
-		    $qr=$wpdb->query("Update $tb SET title='$name',start='$dt' WHERE appointment_id='$e_id'");
-		    if($query==true){
+		    else
+		    {
+		   	$udata = wp_update_user( array( 'ID' => $userid, 'user_email' => $em ) ); 
+		   
+		    $query=$wpdb->update($table_name,array('title'=>trim($name),'start'=>$dt,'email'=>sanitize_email($em),'phone'=>trim($ph)),
+		    				array('app_id'=>$e_id,'user_id'=>$userid),
+		    				array('%s','%s','%s','%s'),
+		    				array('%d','%d')
+		    			); 
+		   
+		    if($query==true && $udata==true){
 		       require_once dirname(__FILE__).'/templates/appointment_update(user).php';
 
 		       print "<script>alert('* Appointment is updated!')</script>";
@@ -631,9 +588,14 @@ $html.='</form>';
 		    else{
 		          print '<META HTTP-EQUIV="Refresh" Content="0; URL='.$sb[0].'">';
 		    }
-
-		    //$result=$wpdb->query("Select * from $table_name ");
 		  }
+		 
+		 }
+
+		 if(isset($_REQUEST['btncan']))  // Redirect to page
+		 {
+		 	print '<META HTTP-EQUIV="Refresh" Content="0; URL='.$sb[0].'">';
+		 	exit();
 		 }
 
 		}		 

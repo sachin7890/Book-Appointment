@@ -47,14 +47,15 @@ jQuery(document).ready(function($){
     <span id="erappt" style="display:none; color:#F00">*Appointment name required!</span>
     <span id="erappt1" style="display:none; color:#F00">*Appointment Must be string format!</span>
 </tr>
-<tr>
+<!-- <tr>
     <td><label for="txtemail">Email Address</label></td>
     <td><input type="text" id="txtemail" name="txtemail"/></td>
     <span id="eremail" style="display:none; color:#F00">*Please check the email id!</span>
-</tr>
+</tr> -->
 <tr>
     <td><label for="txtphone">Phone Number</label></td>
     <td><input type="text" id="txtphone" name="txtphone"/></td>
+    <span id="erephn" style="display:none; color:#F00">*Must be numeric and 10 digit!</span>
 </tr>
 <tr>
     <td><input type="hidden" name="action" value="front_ajax"/></td>

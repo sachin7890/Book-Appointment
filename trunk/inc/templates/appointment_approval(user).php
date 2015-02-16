@@ -14,6 +14,26 @@ $subjectPara1 means 'first paragraph in message body', $subjectPara2 means'first
 if you don't want more than 1 para, just put NULL in unused $subjectPara variables. 
 */ 
 
+global $wpdb,$current_user;
+$table=$wpdb->prefix.'Appointments';
+$userid=$_REQUEST['userid'];
+
+$username = $wpdb->get_var("SELECT user_login FROM {$wpdb->users} WHERE ID = '{$userid}'");
+
+get_currentuserinfo();
+$user=$current_user->user_login;
+
+$admin_email = get_option('email_address');
+
+$lastId = $wpdb->get_var("SELECT max(appointment_id) FROM $table"); // Get last inserted id
+
+$res=$wpdb->get_results("SELECT * from $table WHERE appointment_id='".$lastId."'");
+foreach($res as $val){
+
+  $a=$val->email_id;
+  $dat=$val->date_of_apointment;
+}
+
 $subtitle="Hi User,";
 $subjectPara1 = 'Appointment successfully approved by admin!'; 
 $subjectPara2 = 'Please click here to show approved <a href="#">Appointment</a>.'; 
