@@ -1,0 +1,35 @@
+ul.navigation li a, a:visited
+{
+	color:#000; 
+	font-weight:bold; 
+	text-decoration:none;
+}
+ul.navigation
+{
+	list-style:none; 
+	width: 100%;
+	float: left;
+}
+ul.navigation li
+{ 
+	background:#ececec; 
+	margin:1px;padding:5px 15px; 
+	display:block; 
+	float:left;
+}
+ul.navigation li.highlight
+{ 
+	background:#666;
+}
+ul.navigation li.highlight a
+{ 
+	color:#f5f5f5; 
+	cursor:default;
+}
+img.imglogo {
+/* float: right; */
+position: relative;
+left: 58%;
+bottom: 160px;
+width: 15%;
+}

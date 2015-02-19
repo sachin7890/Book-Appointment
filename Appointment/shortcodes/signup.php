@@ -1,6 +1,5 @@
 <?php
-            $test=new Sub();
-            $test->user_validation($username, $password, $email, $website, $first_name, $last_name, $nickname, $bio);
+            $this->user_validation($username, $password, $email, $first_name, $last_name, $nickname, $bio);
 ?>
 <form action="" method="post" name="frmreg">
     <table>
@@ -17,11 +16,6 @@
     <tr>
         <td><label for="email">Email <strong>*</strong></label></td>
         <td><input type="text" name="email"></td>
-    </tr>
-
-    <tr>
-        <td><label for="website">Website <strong>*</strong></label></td>
-        <td><input type="text" name="website"></td>
     </tr>
      
     <tr>
@@ -51,5 +45,5 @@
 </form>
 
 <?php
-        $test->complete_registration();
+        $this->complete_registration();
 ?>

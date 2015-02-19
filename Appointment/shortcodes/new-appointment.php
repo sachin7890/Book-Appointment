@@ -1,5 +1,5 @@
 <?php 
-        $old=get_option( 'new_date' );  // Get database date
+        $old=$this->options['new_date'];  // Get database date
         $newdate=date("d-m-Y", strtotime($old));
 ?>
 <!DOCTYPE html>
@@ -42,7 +42,7 @@ jQuery(document).ready(function($){
     <span id="errdate" style="display:none; color:#F00">*Date must be today date!</span>
 </tr>
 <tr>
-    <td><label for="txtappt">Appointment-Name</label></td>
+    <td><label for="txtappt">Appointment Name</label></td>
     <td><input type="text" id="txtappt" name="txtappt"/></td>
     <span id="erappt" style="display:none; color:#F00">*Appointment name required!</span>
     <span id="erappt1" style="display:none; color:#F00">*Appointment Must be string format!</span>

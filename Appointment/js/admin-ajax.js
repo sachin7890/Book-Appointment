@@ -52,7 +52,7 @@ $("#add").click(function(){
     
     var dt=$('#dtpicker').val(); 
     var app=$('#txtappt').val();
-   // var email=$('#txtemail').val();
+    //var email=$('#txtemail').val();
     var phone=$('#txtphone').val();
 
     if(dt.length==0){$('#erdate').fadeIn(2000);$('#erdate').fadeOut('slow');return false;}
@@ -61,7 +61,7 @@ $("#add").click(function(){
     else if(app.match(/^[0-9]+$/)){$('#erappt1').fadeIn(2000);$('#erappt1').fadeOut('slow');return false;}
     else if(phone.length!=10 || isNaN(phone)){$('#erephn').fadeIn(2000);$('#erephn').fadeOut('slow');return false;}
     else
- 
+
     var dataString = 'dtpicker='+ dt + '&txtappt=' + app + '&txtphone=' + phone;
     
     var data = {
@@ -89,5 +89,20 @@ imgurl = $('img',html).attr('src');
 $('#upload_image').val(imgurl);
 tb_remove();
 }
+
+var str=location.href.toLowerCase();
+
+$(".navigation li a").each(function() {
+
+if (str.indexOf(this.href.toLowerCase()) > -1) {
+
+ $("li.highlight").removeClass("highlight");
+
+$(this).parent().addClass("highlight");
+
+ }
+
+});
+
 
 });

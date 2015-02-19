@@ -1,5 +1,5 @@
 <?php
-        $old=get_option( 'new_date' );  // Get database date
+        $old=$this->options['new_date'];  // Get database date
         $newdate=date("d-m-Y", strtotime($old));
 ?>
 <!DOCTYPE html>
@@ -31,8 +31,9 @@ $( "#dtpicker" ).datepicker({
 <title>New Appointment</title>
 </head>
 <body>
-<h2>Add Appointment</h2>
+<div class="wrap">
 <form id='frm' name='frm' action="" method='POST'>
+<h2>Add Appointment</h2>
 <table>
 <tr>
     <td><label for="dtpicker">Date of Appointment</label></td>
@@ -41,7 +42,7 @@ $( "#dtpicker" ).datepicker({
     <span id="errdate" style="display:none; color:#F00">*Date must be today date!</span>
 </tr>
 <tr>
-    <td><label for="txtappt">Appointment-Name</label></td>
+    <td><label for="txtappt">Appointment Name</label></td>
     <td><input type="text" id="txtappt" name="txtappt"/></td>
     <span id="erappt" style="display:none; color:#F00">*Appointment name required!</span>
     <span id="erappt1" style="display:none; color:#F00">*Must be string format!</span>
@@ -62,8 +63,8 @@ $( "#dtpicker" ).datepicker({
 
 <span id="error" style="color:#F00"></span>
 <span id="success1" style="color:green"></span>
-
 </table>
 </form>
+</div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <?php
-        $old=get_option( 'new_date' );  // Get database date
+        $old=$this->options['new_date'];  // Get database date
         $newdate=date("d-m-Y", strtotime($old));
 ?>
 <script type="text/javascript">
@@ -29,5 +29,5 @@
 );
 </script>
 <?php
-			echo $this->frontappointments_list();
+      echo $this->frontappointments_list();
 ?>

@@ -1,32 +1,14 @@
 <!DOCTYPE>
-<style type="text/css">
-body {
-  font-size: 14px;
-  font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-
-  }
-.menuheader{
-	width: 100%;
-}
-.menuheader a {
-text-decoration: none;
-}	
-header.menuheader ul li {
-display: inline-block;
-}
-</style>
+<html lang="en">
 <body>
-<h1>Book Appointment</h1>
-<header class="menuheader">
-	<nav>
-		<ul>
-		<li>
-			<?php 
-			echo $this->menu();
-			?>
-		</li>
+<div class="wrap">
+<h1>Appointments Book</h1>
+<hr>
+	<ul class="navigation">
+			<?php echo $this->menu();?>
 	</ul>
-	</nav>	
-</header>
-<div><?php $this->check_page();?></div>
+<hr class="line">
+<?php $this->check_page();?>
+</div>
 </body>
+</html>

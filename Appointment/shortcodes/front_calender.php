@@ -1,4 +1,3 @@
-<?php $test=new WPUF_Main();?>
 <html lang="en">
 <head>
 <script>
@@ -12,7 +11,7 @@
       right: 'month,agendaWeek,agendaDay'
      },
     
-     events: <?php echo $test->frontcal_events()?>,
+     events: <?php echo $this->frontcal_events()?>,
      // Convert the allDay from string to boolean
      eventRender: function(event, element, view) {
      // console.log(event);

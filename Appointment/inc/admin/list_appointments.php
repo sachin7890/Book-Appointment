@@ -1,5 +1,5 @@
 <?php
-        $old=get_option( 'new_date' );  // Get database date
+        $old=$this->options['new_date'];  // Get database date
         $newdate=date("d-m-Y", strtotime($old));
 ?>
 <script type="text/javascript">
@@ -21,7 +21,7 @@ jQuery(document).ready(
         }
     }
 
-    $( "#txtedate" ).datepicker({
+    $("#txtedate").datepicker({
       changeMonth: true,//this option for allowing user to select month
       changeYear: true, //this option for allowing user to select from year range
       beforeShowDay:unavailable,
@@ -33,10 +33,9 @@ jQuery(document).ready(
 
 </script>
 <h2>Appointments List</h2>
+<div class="wrap">
 <?php
-		echo $this->appointments_list();
+    echo $this->appointments_list();
 ?>
-
-<?php
-	$this->action();
-?>
+</div>
+<?php $this->action();?>

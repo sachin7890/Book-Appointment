@@ -30,7 +30,10 @@ class WPUF_Main extends Sub {
        // add_action( 'admin_enqueue_scripts',array($this,'my_action_javascript'));
   
         add_action('wp_ajax_test_response', array(&$this,'my_action_callback' ));
-        add_action('admin_init', array(&$this,'register_mysettings' ));
+        add_action('admin_init', array($this,'register_mysettings' ));
+
+        $this->options = get_option('baw-settings-group');
+
         add_action('init', array(&$this,'wp_gear_manager_admin_scripts'));
         add_action('init', array(&$this,'wp_gear_manager_admin_styles'));
         add_action('wp_ajax_front_response', array($this,'front_ajax' ));
@@ -81,7 +84,24 @@ class WPUF_Main extends Sub {
       )";
 
         $wpdb->query( $sql2 );
-    }
+
+      $options = array(
+              'email_address' => '',
+              'new_date' => '',
+              'booking_perday' =>1,
+              'upload_image' =>''
+      ); 
+
+      if ( get_option( 'baw-settings-group' ) !== false ) {
+    // The option already exists, so we just update it.
+        update_option( 'baw-settings-group', $options );
+      } 
+      else
+      {
+      // The option hasn't been added yet. We'll add it with $autoload set to 'no'.
+      add_option( 'baw-settings-group', $options );
+      }
+  }
 
   public function get_jqueryui_ver() {
     
@@ -95,8 +115,9 @@ class WPUF_Main extends Sub {
   
   }
   public function test_class_menu() {
-      global $setting;
-      $setting=add_menu_page( 'Appointment page', 'Appointment Book', 'manage_options', 'Test-class', array( $this, 'appointment_plugin' ));
+     // global $setting;
+      add_menu_page( 'Appointment page', 'Appointment Book', 'manage_options', 'Test-class', array( $this, 'appointment_plugin' ));
+      add_submenu_page( 'Test-class', __('Settings','Appointment Book'), __('Settings','Appointment Book'),'manage_options' ,'appointment_setting', array( $this, 'setting_menu' ));
     }
 
   public function appointment_plugin(){
@@ -109,7 +130,13 @@ class WPUF_Main extends Sub {
     return $links;
   }
 
-  public function appointment(){
+  public function setting_menu()
+  {
+      require_once dirname(__FILE__).'/setting.php';
+  }
+
+  public function appointment()
+  {
     if(is_user_logged_in())
     {
      require_once dirname(__FILE__).'/shortcodes/new-appointment.php';
@@ -123,10 +150,7 @@ class WPUF_Main extends Sub {
 
   public function register_mysettings() {
   //register our settings
-    register_setting( 'baw-settings-group', 'email_address' );
-    register_setting( 'baw-settings-group', 'new_date' );
-    register_setting( 'baw-settings-group', 'booking_perday' );
-    register_setting( 'baw-settings-group', 'upload_image' );
+    register_setting('baw-settings-group','baw-settings-group');
   }
 
  public function wp_gear_manager_admin_scripts() {
@@ -144,6 +168,7 @@ class WPUF_Main extends Sub {
     wp_enqueue_style('thickbox');
     wp_enqueue_style('css');
 
+    wp_enqueue_style( 'custom-css', plugin_dir_url(__FILE__).'css/custom.css', false, '');
     wp_enqueue_style( 'jquery-fullcalendar', plugin_dir_url(__FILE__).'css/fullcalendar.css', false, 'v2.1.1');
     wp_enqueue_style( 'jquery-ui', plugin_dir_url(__FILE__).'css/jquery-ui.css', false, 'v1.10.3');
   }
@@ -176,7 +201,7 @@ class WPUF_Main extends Sub {
   
     $table_name = $wpdb->prefix . 'Appointments';
    // $tb= $wpdb->prefix.'events';
-    $total=get_option('booking_perday');
+    $total=$this->options['booking_perday'];
 
     if(current_user_can('administrator')){
     $id=get_current_user_id();
@@ -207,7 +232,7 @@ class WPUF_Main extends Sub {
       
     $lastid=$wpdb->insert_id;
 
-    $URL=$url."&new=list_appointments.php&apid=".$lastid;
+    $URL=$url."&new=list_appointments.php&app_id=".$lastid."&userid=".$id;
 
     $qr=$wpdb->update($table_name,array('url'=>$URL),
                         array('app_id'=>$lastid),
@@ -231,7 +256,7 @@ class WPUF_Main extends Sub {
 
     $table_name = $wpdb->prefix . 'Appointments';
   //  $tb= $wpdb->prefix.'events';
-    $total=get_option('booking_perday');
+    $total=$this->options['booking_perday'];
    // $user=get_userdata(1); // Admin details  
  
     if (is_user_logged_in())
@@ -260,7 +285,7 @@ class WPUF_Main extends Sub {
         
       $lastid=$wpdb->insert_id;
 
-      $URL=$url."&new=list_appointments.php&apid=".$lastid;
+      $URL=$url."&new=list_appointments.php&app_id=".$lastid."&userid=".$userid;
 
       $qr=$wpdb->update($table_name,array('url'=>$URL),
                           array('app_id'=>$lastid),
