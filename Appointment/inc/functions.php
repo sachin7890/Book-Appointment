@@ -56,6 +56,61 @@ class Sub
 		}*/
 	}
 
+	public function wpb_recently_registered_users() 
+	{
+		//phpinfo();
+		global $wpdb;
+		/*$user_meta = get_user_meta(53);
+		var_dump($user_meta);*/
+		$blogusers = get_users( 'blog_id=1&orderby=ID&role=subscriber' );
+		// Array of WP_User objects.
+		//$recentusers = 'style="float: left;width: 100%;height: auto;	">';
+		$recentusers .= '<tr>';
+		$recentusers .= '<th>User_ID</th><th>Profile image</th><th>Name</th><th>E-mail</th><th>Role</th><th>Action</th>';
+		foreach ( $blogusers as $user ) {
+					$user_info = get_userdata($user->ID);
+					//echo 'User roles: ' . implode(', ', $user_info->roles) . "\n";
+					$recentusers .= '<tr>';
+					$recentusers .= '<td>';
+					$recentusers .=  esc_html( $user->ID ).'</td>';
+					$recentusers .=  '<td>'.get_avatar($user->user_email, 45).'</td>';	
+					$recentusers .= '<td>'.esc_html( $user->display_name ).'</td>';
+					$recentusers .= '<td>'.esc_html( $user->user_email ).'</td>';
+					$recentusers .= '<td>'.esc_html( implode(', ', $user_info->roles) ).'</td>';
+					//$recentusers .= '<td>'.esc_html( $user->display_name );
+					$recentusers .= '<td><a href='.$_SERVER['REQUEST_URI'].'&id='.esc_html($user->ID).' id="del" onclick="return confirm(\'* Are you sure you want to remove this User ?\')" class="button-primary">Remove</a>';
+					$recentusers .= '</td>';
+				$recentusers .= '</tr>';
+			//$recentusers .= '<li>' .get_avatar($user->user_email, 45) .esc_html( $user->display_name ).' <a href='.$_SERVER['REQUEST_URI'].'&id='.esc_html($user->ID).' id="del" onclick="return confirm(\'* Are you sure you want to remove this User ?\')">Remove</a></li> ';
+		}
+		$recentusers .= '</tr>';
+		//$recentusers .= '</table>';
+		if($blogusers==NULL){
+			_e('<i>*No users registered!</i>','appointments');
+		}
+		return $recentusers;
+	}
+
+	public function remove_logged_in_user() {
+      if(isset($_REQUEST['id']))
+      {
+      		global $wpdb;
+      		$link=explode("&",$_SERVER['REQUEST_URI']);
+      		
+      		$id=$_REQUEST['id'];
+      		$table = $wpdb->prefix."users";
+      		$r = $wpdb->delete( $table,
+                  array(
+                    'ID'    => $id
+                    ),
+                  array( '%d')
+                );
+      		//wp_redirect(admin_url().'admin.php?page=usermanage-page');
+           echo '<META HTTP-EQUIV="Refresh" Content="0; URL='.$link[0].'">';
+      }	
+}
+
+
 	/*public function manage_appointments(){
 		global $wpdb;
 		$html;
@@ -377,7 +432,7 @@ $html.='</form>';
 		       if($status=='Approved')
 	    		{
 	    			require_once dirname(__FILE__).'/templates/appointment_approval(user).php';
-	   
+	   				require_once dirname(__FILE__).'/templates/appointment_approval(admin).php';
 	    		}
 	    		if($status == "Rejected")
 	    		{
@@ -406,6 +461,7 @@ $html.='</form>';
 
 public function frontappointments_list()
 {
+	
 	global $wpdb,$html;
     $table_name = $wpdb->prefix . 'Appointments';
    // $tb=$wpdb->prefix.'events';
@@ -602,7 +658,7 @@ public function frontappointments_list()
 		global $reg_errors,$html;
 		extract($_POST);
 		$reg_errors = new WP_Error;
-		if ( isset($_POST['submit'] ) ) {
+		if ( isset($register) ) {
 		if ( empty( $username ) || empty( $password ) || empty( $email ) ) {
     		$reg_errors->add('field', 'Required form field is missing');
 		}
@@ -632,6 +688,7 @@ public function frontappointments_list()
    			 $reg_errors->add( 'email', 'Email Already in use' );
 		}
 
+
 		if ( is_wp_error( $reg_errors ) ) {
  
     	foreach ( $reg_errors->get_error_messages() as $error ) {
@@ -648,11 +705,17 @@ public function frontappointments_list()
 
 	public function confirm_mail($email,$admin_email,$userid)
 	{
+		$img = $this->options['upload_image'];
+		$data = get_userdata($userid);
+		$username = $data->user_firstname;
+		//echo "user = ".$username;
+
 		$to      = $email;
 	    $from    = $admin_email; 
 	    $subject = "Confirmation mail";
 	    $content = 
-	    ' <div id="header" style="margin: 0 auto;padding: 10px;color: #fff;text-align: center;background-color: #FFFFFF;font-family: Open Sans,Arial,sans-serif;">'.$img.'  
+	    ' <div id="header" style="margin: 0 auto;padding: 10px;color: #fff;text-align: center;background-color: #FFFFFF;font-family: Open Sans,Arial,sans-serif;float:left">
+	    	<img src='.$img.' alt="logo"/>  
 	    <div id="outer" style="margin: 0 auto;margin-top: 10px;text-align: left;">'.  
 	   '<div id="inner" style="margin: 0 auto;background-color: #fff;font-family: Open Sans,Arial,sans-serif;font-size: 13px;font-weight: normal;line-height: 1.4em;color: #444;margin-top: 10px;">'. 
 	       '<p>Hi '.$username.'</p>'.
@@ -665,47 +728,52 @@ public function frontappointments_list()
 		  $headers.= "MIME-Version: 1.0\r\n";
 		  $headers.= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
-		wp_mail($to, $subject, $content, $headers);
+		  wp_mail($to, $subject, $content, $headers);
 	}
 
-	public function complete_registration() {
-    global $reg_errors, $username, $password, $email, $first_name, $last_name, $nickname, $bio;
-    extract($_POST);
-    if ( isset($_POST['submit'] ) ) {
-    $admin_email = get_option('admin_email');
-    $attachments = get_posts( array(
-    'post_type' => 'attachment',
-    'posts_per_page' => 1,
-    'post_status' => null,
-    'post_mime_type' => 'image'
-    ) );
+	public function complete_registration() 
+	{
+	    global $reg_errors, $username, $password, $email, $first_name, $last_name, $nickname, $bio;
+	    extract($_POST);
 
-    foreach ( $attachments as $attachment ) {
-        $img=wp_get_attachment_image( $attachment->ID, 'thumbnail' );
-    }          
+	    if ( isset($register) ) {
+	    $admin_email = get_option('admin_email');      
 
-    if ( 1 > count( $reg_errors->get_error_messages() ) ) {
-        $userdata = array(
-        'user_login'    =>   $username,
-        'user_email'    =>   sanitize_email($email),
-        'user_pass'     =>   $password,
-        'user_url'      =>   $website,
-        'first_name'    =>   $first_name,
-        'last_name'     =>   $last_name,
-        'nickname'      =>   $nickname,
-        'description'   =>   $bio,
-        );
+	    if ( 1 > count( $reg_errors->get_error_messages() ) ) {
+	        $userdata = array(
+	        'user_login'    =>   $username,
+	        'user_email'    =>   sanitize_email($email),
+	        'user_pass'     =>   $password,
+	        'first_name'    =>   $first_name,
+	        'last_name'     =>   $last_name,
+	        'nickname'      =>   $nickname,
+	        'description'   =>   $bio,
+	        );
 
-      // Confirmation mail send
-        
-      
-
-      $user    = wp_insert_user( $userdata );
-      echo '* Registration complete. Please check your mail to confirm email adress. <br/>* Click here to <a href="' . get_site_url() . '/wp-login.php">Wp-login</a>.'; 
-
-	  $this->confirm_mail($email,$admin_email,$user);
-    }
+	      // Confirmation mail send
+	        
+	      $user    =  wp_insert_user($userdata);
+	      if( !is_wp_error($user) ) {
+	      		echo '* Registration complete. Please check your mail to confirm email adress. <br/>* Click here to <a href="' . get_site_url() . '/wp-login.php">Wp-login</a>.'; 
+	  			$this->confirm_mail($email,$admin_email,$user);
+	  		}
+	    }
   }
+}
+
+public function get_user_name()
+{
+ 	global $current_user;
+ 	get_currentuserinfo();
+    $name = $current_user->user_login;
+    return $name;
+}
+public function get_user_email()
+{
+ 	global $current_user;
+ 	get_currentuserinfo();
+    $email = $current_user->user_email;
+    return $email;
 }
 	
 /*public function emailtemplate_validation($template_code,$template_subject,$template_text)

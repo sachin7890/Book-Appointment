@@ -73,7 +73,7 @@ class WPUF_Main extends Sub {
         $sql2 = "CREATE TABLE IF NOT EXISTS $table_name (
         app_id int(11) NOT NULL AUTO_INCREMENT,
         title varchar(200) NOT NULL,
-        start date NOT NULL,
+        start varchar(255) NOT NULL,
         url varchar(100) NOT NULL,
         allDay varchar(10) DEFAULT 'false' NOT NULL, 
         email varchar(200) NOT NULL,
@@ -117,8 +117,9 @@ class WPUF_Main extends Sub {
   public function test_class_menu() {
      // global $setting;
       add_menu_page( 'Appointment page', 'Appointment Book', 'manage_options', 'Test-class', array( $this, 'appointment_plugin' ));
-      add_submenu_page( 'Test-class', __('Settings','Appointment Book'), __('Settings','Appointment Book'),'manage_options' ,'appointment_setting', array( $this, 'setting_menu' ));
-    }
+      add_submenu_page( 'Test-class', __('Users', 'Appointment Book'), __('Users','Appointment Book'), 'manage_options','usermanage-page', array( $this, 'user_menu' ) );
+      add_submenu_page( 'Test-class', __('Settings','Appointment Book'), __('Settings','Appointment Book'),'manage_options' ,'appointment_setting', array( $this, 'setting_menu' ));     
+  }
 
   public function appointment_plugin(){
       require_once dirname(__FILE__).'/class-test.php'; 
@@ -133,6 +134,11 @@ class WPUF_Main extends Sub {
   public function setting_menu()
   {
       require_once dirname(__FILE__).'/setting.php';
+  }
+
+  public function user_menu()
+  {
+    require_once dirname(__FILE__).'/inc/admin/users.php';
   }
 
   public function appointment()
@@ -278,9 +284,9 @@ class WPUF_Main extends Sub {
       $url=admin_url().'admin.php?page=Test-class';
 
       $query=$wpdb->query($wpdb->prepare(
-        "INSERT into $table_name(title,start,phone,user_id,status)
-         VALUES (%s,%s,%s,%s,%s)
-        ", $app,$dat,$phone,$userid,'Pending'
+        "INSERT into $table_name(title,start,email,phone,user_id,status)
+         VALUES (%s,%s,%s,'%s',%s,%s)
+        ", $app,$dat,$email,$phone,$userid,'Pending'
       ));
         
       $lastid=$wpdb->insert_id;
@@ -294,7 +300,7 @@ class WPUF_Main extends Sub {
                         );
 
       if($query==true && $qr==true){
-          //  require_once dirname(__FILE__).'/inc/templates/appointment_add(client).php';
+            require_once dirname(__FILE__).'/inc/templates/appointment_add(client).php';
             echo "* Appointment booked!";
       }
       else{

@@ -26,17 +26,8 @@ foreach($res as $val){
   $dat=$val->date_of_apointment;
 }
 
-$attachments = get_posts( array(
-    'post_type' => 'attachment',
-    'posts_per_page' => 1,
-    'post_status' => null,
-    'post_mime_type' => 'image'
-    ) );
-
-    foreach ( $attachments as $attachment ) {
-        $img=wp_get_attachment_image( $attachment->ID, 'thumbnail' );
-    }    
-
+$path = $this->options['upload_image'];
+$img = "<img src=".$path.">";
 $url=site_url(); 
 
 /* 
@@ -84,6 +75,9 @@ $message1 = '<!DOCTYPE HTML>'.
 '<title>Appointment notification</title>'. 
 '</head>'. 
 '<body style="width:100%;">'. 
+'<div id="header" style="width: 60%;margin: 0 auto;padding: 10px;color: #fff;text-align: center;background-color: #FFFFFF;font-family: Open Sans,Arial,sans-serif;">'.$img.' 
+</div>'.
+
 '<div id="outer" style="width: 78%;margin: 0 auto;margin-top: 10px;">'.  
    '<div id="inner" style="width: 78%;margin: 0 auto;background-color: #fff;font-family: Open Sans,Arial,sans-serif;font-size: 13px;font-weight: normal;line-height: 1.4em;color: #444;margin-top: 10px;">'. 
        '<p>'.$subtitle.'</p>'.

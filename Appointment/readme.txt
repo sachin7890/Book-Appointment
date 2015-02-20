@@ -1,6 +1,6 @@
 === Book Appointment ===
 Contributors: sachin, gunjan
-Donate link: http://www.djsoutsourcing.com/
+Donate link: http://www.djsoutsourcing.com/appointment-book/
 Tags: fullcalendar jquery,jQuery datepicker,ajax,events
 Requires at least: 3.0.1
 Tested up to: 3.8

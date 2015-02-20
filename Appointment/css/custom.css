@@ -16,6 +16,7 @@ ul.navigation li
 	margin:1px;padding:5px 15px; 
 	display:block; 
 	float:left;
+	border: 0 !important;
 }
 ul.navigation li.highlight
 { 
@@ -26,10 +27,23 @@ ul.navigation li.highlight a
 	color:#f5f5f5; 
 	cursor:default;
 }
+table.recentusers {
+float: left;
+width: 70%;
+height: auto;
+margin: 0 auto;
+padding: 20px 0;
+}
+.recentusers
+{
+	text-align: left; 
+	margin: 10px 10px;
+	font-size: 14px;
+}
 img.imglogo {
-/* float: right; */
-position: relative;
-left: 58%;
-bottom: 160px;
-width: 15%;
+	/* float: right; */
+	position: relative;
+	left: 58%;
+	bottom: 160px;
+	width: 15%;
 }

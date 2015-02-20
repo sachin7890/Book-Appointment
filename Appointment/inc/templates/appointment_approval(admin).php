@@ -27,6 +27,9 @@ foreach($res as $val){
   $dat=$val->date_of_apointment;
 }
 
+$path = $this->options['upload_image'];
+$img = "<img src=".$path.">";
+
 /* 
 Change your message body in the given $subjectPara variables.  
 $subjectPara1 means 'first paragraph in message body', $subjectPara2 means'first paragraph in message body', 
@@ -35,6 +38,7 @@ if you don't want more than 1 para, just put NULL in unused $subjectPara variabl
 
 $subtitle="Hi Admin";
 $subjectPara1 = 'You are successfully approved appointment of User <strong>'.$username.'</strong>!';  
+$subjectPara3 = 'Thank you'; 
 
 $message = '<!DOCTYPE HTML>'. 
 '<head>'. 
@@ -42,13 +46,19 @@ $message = '<!DOCTYPE HTML>'.
 '<title>Email notification</title>'. 
 '</head>'. 
 '<body style="width:100%;">'. 
-
+'<div id="header" style="width: 60%;margin: 0 auto;padding: 10px;color: #fff;text-align: center;background-color: #FFFFFF;font-family: Open Sans,Arial,sans-serif;">'.$img.' 
+</div>'.
 '<div id="outer" style="width: 78%;margin: 0 auto;margin-top: 10px;">'.  
    '<div id="inner" style="width: 78%;margin: 0 auto;background-color: #fff;font-family: Open Sans,Arial,sans-serif;font-size: 13px;font-weight: normal;line-height: 1.4em;color: #444;margin-top: 10px;">'. 
        '<p>'.$subtitle.'</p>'.
        '<p>'.$subjectPara1.'</p>'.
+       '<p>'.$subjectPara3.'</p>'.
    '</div>'.   
 '</div>'. 
+
+'<div id="footer" style="width: 60%;height: 40px;margin: 0 auto;text-align: center;padding: 10px;font-family: Verdena;background-color: #EAEAEA;">'. 
+   'All rights reserved by <a href="http://www.djsoutsourcing.com" target="_blank">Djs outsourcing</a> 2014'. 
+'</div>'.
 '</body>'; 
 
 /*EMAIL TEMPLATE ENDS*/ 

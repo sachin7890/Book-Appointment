@@ -36,16 +36,18 @@ jQuery(document).ready(function($){
 <form id='frm' name='frm' action="" method='POST'>
 <table>
 <tr>
+    <td><label for="txtappt">Appointment name</label></td>
+    <td><input type="text" id="txtappt" name="txtappt" value="<?php echo $this->get_user_name();?>" disabled/></td>
+</tr>
+<tr>
+    <td><label for="txtappt">Email address</label></td>
+    <td><input type="text" id="txtemail" name="txtemail" value="<?php echo $this->get_user_email();?>" disabled/></td>
+</tr>
+<tr>
     <td><label for="dtpicker">Date of Appointment</label></td>
     <td><input type="text" id="dtpicker" name="dtpicker"/></td>
     <span id="erdate" style="display:none; color:#F00">*Date must be required!</span>
     <span id="errdate" style="display:none; color:#F00">*Date must be today date!</span>
-</tr>
-<tr>
-    <td><label for="txtappt">Appointment Name</label></td>
-    <td><input type="text" id="txtappt" name="txtappt"/></td>
-    <span id="erappt" style="display:none; color:#F00">*Appointment name required!</span>
-    <span id="erappt1" style="display:none; color:#F00">*Appointment Must be string format!</span>
 </tr>
 <!-- <tr>
     <td><label for="txtemail">Email Address</label></td>
@@ -67,4 +69,5 @@ jQuery(document).ready(function($){
 </table>
 </form>
 </body>
+
 </html>

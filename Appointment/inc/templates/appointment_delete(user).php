@@ -31,6 +31,9 @@ foreach($res as $val){
   $a=$val->email_id;
 }
 
+$path = $this->options['upload_image'];
+$img = "<img src=".$path.">";
+
 $url=site_url();
 //$logourl=plugins_url();
 
@@ -42,6 +45,7 @@ if you don't want more than 1 para, just put NULL in unused $subjectPara variabl
 
 $subtitle="Hi Admin";
 $subjectPara1 = 'Appointment successfully removed by <strong>'.$username.'</strong>.'; 
+$subjectnote = "Thank you";
 
 $message = '<!DOCTYPE HTML>'. 
 '<head>'. 
@@ -49,15 +53,20 @@ $message = '<!DOCTYPE HTML>'.
 '<title>Email notification</title>'. 
 '</head>'. 
 '<body style="width:100%;">'. 
-'<div id="header" style="width: 60%;margin: 0 auto;padding: 10px;color: #fff;text-align: center;background-color: #FFFFFF;font-family: Open Sans,Arial,sans-serif;">'. 
-'</div>'. 
+'<div id="header" style="width: 60%;margin: 0 auto;padding: 10px;color: #fff;text-align: center;background-color: #FFFFFF;font-family: Open Sans,Arial,sans-serif;">'.$img.' 
+</div>'. 
 
 '<div id="outer" style="width: 78%;margin: 0 auto;margin-top: 10px;">'.  
    '<div id="inner" style="width: 78%;margin: 0 auto;background-color: #fff;font-family: Open Sans,Arial,sans-serif;font-size: 13px;font-weight: normal;line-height: 1.4em;color: #444;margin-top: 10px;">'. 
        '<p>'.$subtitle.'</p>'.
-       '<p>'.$subjectPara1.'</p>'.  
+       '<p>'.$subjectPara1.'</p>'. 
+       '<p>'.$subjectnote.'</p>'. 
    '</div>'.   
 '</div>'. 
+
+'<div id="footer" style="width: 60%;height: 40px;margin: 0 auto;text-align: center;padding: 10px;font-family: Verdena;background-color: #EAEAEA;">'. 
+   'All rights reserved by <a href="http://www.djsoutsourcing.com" target="_blank">Djs outsourcing</a> 2014'. 
+'</div>'.
 '</body>'; 
 
 /*EMAIL TEMPLATE ENDS*/ 
@@ -72,6 +81,9 @@ $headers .= "Reply-To: ". $a . "\r\n";
 $headers .= "MIME-Version: 1.0\r\n"; 
 $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n"; 
 
+
+print($message);
+die();
 //die($message);
 // Remember, mail function may not work in PHP localhost setup but the email template can be used anywhere like (PHPmailer, swiftmailer, PHPMail classes etc.) 
 // Sending mail 

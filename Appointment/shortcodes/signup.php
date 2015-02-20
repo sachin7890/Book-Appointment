@@ -20,12 +20,12 @@
      
     <tr>
         <td><label for="firstname">Firstname <strong>*</strong></label></td>
-        <td><input type="text" name="firstname"></td>
+        <td><input type="text" name="first_name"></td>
     </tr>
 
     <tr>
         <td><label for="lastname">Lastname <strong>*</strong></label></td>
-        <td><input name="lastname" ></td>
+        <td><input type="text" name="last_name" ></td>
     </tr>
 
     <tr>
@@ -39,7 +39,7 @@
     </tr>
      
     <tr>
-        <td><input type="submit" name="submit" value="Register"/></td>
+        <td><input type="submit" name="register" value="Register"/></td>
     </tr>
     </table>    
 </form>
